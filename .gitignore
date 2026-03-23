@@ -5,7 +5,7 @@ venv/
 db.sqlite3
 
 # Media files (ảnh upload của user)
-post/
+posts/
 
 # Python cache
 __pycache__/
