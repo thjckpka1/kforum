@@ -70,6 +70,9 @@
       transition: opacity .2s;
     }
     .kf-btn-post:hover { opacity: 0.9; color: #fff; }
+
+    /* Avatar dropdown */
+    .kf-avatar-wrap { position: relative; }
     .kf-avatar {
       width: 34px; height: 34px;
       border-radius: 50%;
@@ -77,8 +80,51 @@
       display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 12px; font-weight: 700;
       border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      overflow: hidden;
       text-decoration: none;
+      transition: border-color .2s;
     }
+    .kf-avatar:hover { border-color: rgba(255,255,255,0.7); }
+    .kf-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .kf-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      padding-top: 8px;   /* tạo vùng hover liền mạch, không bị hở */
+      display: none;
+      z-index: 200;
+    }
+    .kf-dropdown.show { display: block; }
+    .kf-dropdown-inner {
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(200,220,240,0.6);
+      border-radius: 14px;
+      min-width: 180px;
+      box-shadow: 0 8px 32px rgba(26,74,138,0.15);
+      padding: 8px 0;
+    }
+    .kf-dropdown-header {
+      padding: 8px 16px 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      margin-bottom: 4px;
+    }
+    .kf-dropdown-header .kf-dname { font-size: 14px; font-weight: 800; color: #1a3a6a; }
+    .kf-dropdown-header .kf-demail { font-size: 12px; color: #8aabcc; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 148px; }
+    .kf-dropdown a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      font-size: 13px; font-weight: 600; color: #3a5a80;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .kf-dropdown a:hover { background: rgba(26,74,138,0.06); color: #1a4a8a; }
+    .kf-dropdown .kf-dd-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 4px 0; }
+    .kf-dropdown .kf-dd-logout { color: #c0392b !important; }
+    .kf-dropdown .kf-dd-logout:hover { background: rgba(192,57,43,0.06) !important; }
+
     .kf-nav-login {
       color: rgba(255,255,255,0.8);
       font-size: 14px;
@@ -190,16 +236,36 @@
 
   <div class="kf-nav-links">
     <a href="{% url 'post_list' %}" class="{% if request.resolver_match.url_name == 'post_list' %}active{% endif %}">Trang chủ</a>
-    <a href="{% url 'post_list' %}">Khám phá</a>
-    <a href="#">Nổi bật</a>
-    <a href="#">Hỏi đáp</a>
+    <a href="{% url 'post_list' %}" class="{% if request.resolver_match.url_name == 'post_list' %}active{% endif %}">Khám phá</a>
   </div>
 
   <div class="kf-nav-right">
     {% if user.is_authenticated %}
       <a href="{% url 'post_create' %}" class="kf-btn-post">＋ Đăng bài</a>
-      <a href="{% url 'logout' %}" class="kf-nav-login">Đăng xuất</a>
-      <div class="kf-avatar">{{ user.username|first|upper }}</div>
+
+      <!-- Avatar với dropdown -->
+      <div class="kf-avatar-wrap" id="avatarWrap">
+        <div class="kf-avatar">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="avatar">
+          {% else %}
+            {{ user.username|first|upper }}
+          {% endif %}
+        </div>
+        <div class="kf-dropdown" id="avatarDropdown">
+          <div class="kf-dropdown-inner">
+            <div class="kf-dropdown-header">
+              <div class="kf-dname">{{ user.get_full_name|default:user.username }}</div>
+              <div class="kf-demail">{{ user.email|default:"Chưa có email" }}</div>
+            </div>
+            <a href="{% url 'profile' %}">👤 Trang cá nhân</a>
+            <a href="{% url 'profile' %}?tab=settings">⚙️ Cài đặt tài khoản</a>
+            <a href="{% url 'post_create' %}">✏️ Đăng bài mới</a>
+            <div class="kf-dd-divider"></div>
+            <a href="{% url 'logout' %}" class="kf-dd-logout">🚪 Đăng xuất</a>
+          </div>
+        </div>
+      </div>
     {% else %}
       <a href="{% url 'register' %}" class="kf-btn-post">Đăng ký</a>
       <a href="{% url 'login' %}" class="kf-nav-login">Đăng nhập</a>
@@ -236,5 +302,31 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
+<script>
+(function() {
+  const wrap = document.getElementById('avatarWrap');
+  const dropdown = document.getElementById('avatarDropdown');
+  if (!wrap || !dropdown) return;
+
+  let hideTimer = null;
+
+  wrap.addEventListener('mouseenter', function() {
+    clearTimeout(hideTimer);
+    dropdown.classList.add('show');
+  });
+
+  wrap.addEventListener('mouseleave', function() {
+    hideTimer = setTimeout(function() {
+      dropdown.classList.remove('show');
+    }, 150);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!wrap.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+})();
+</script>
 </body>
 </html>

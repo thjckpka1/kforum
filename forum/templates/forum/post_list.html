@@ -1,5 +1,7 @@
 {% extends 'accounts/base.html' %}
-{% block title %}Trang chủ — Kforum{% endblock %}
+{% block title %}
+  {% if page_title %}{{ page_title }} — Kforum{% else %}Trang chủ — Kforum{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -33,6 +35,24 @@
   .kf-tab { padding: 6px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.65); cursor: pointer; transition: all .2s; text-decoration: none; }
   .kf-tab.active, .kf-tab:hover { background: #fff; color: #1a4a8a; }
 
+  /* Filter banner */
+  .kf-filter-banner {
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 14px;
+    padding: 10px 16px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .kf-filter-banner span { color: #fff; font-size: 14px; font-weight: 700; }
+  .kf-filter-clear { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; text-decoration: none; }
+  .kf-filter-clear:hover { color: #fff; }
+
   .kf-card-link { text-decoration: none; display: block; }
   .kf-card-top { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
   .kf-card-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -45,15 +65,41 @@
   .kf-img-thumb { width: 100%; height: 90px; border-radius: 12px; margin-bottom: 9px; background: linear-gradient(135deg,#d0e8f8,#e8d8b0); display: flex; align-items: center; justify-content: center; color: #7a9ab8; font-size: 12px; font-weight: 600; overflow: hidden; }
   .kf-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-  .kf-cat-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); cursor: pointer; transition: color .15s; text-decoration: none; }
+  /* Category & Tag trong card — dạng link */
+  .kf-cat {
+    display: inline-block;
+    background: rgba(61,122,181,0.12);
+    color: #1a5aaa;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .kf-cat:hover, .kf-cat.active { background: #1a5aaa; color: #fff; }
+  .kf-tag {
+    display: inline-block;
+    background: rgba(200,146,42,0.1);
+    color: #a07020;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .kf-tag:hover, .kf-tag.active { background: #C8922A; color: #fff; }
+
+  .kf-cat-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); transition: color .15s; text-decoration: none; }
   .kf-cat-item:last-child { border: none; }
-  .kf-cat-item:hover { color: #C8922A; }
+  .kf-cat-item:hover, .kf-cat-item.active { color: #C8922A; }
   .kf-cat-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 9px; flex-shrink: 0; }
   .kf-cat-left { display: flex; align-items: center; }
   .kf-cat-count { font-size: 11px; color: #8aabcc; background: rgba(26,74,138,0.07); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
   .kf-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-  .kf-tag-pill { background: #fdf3e3; border: 1px solid #f0d898; color: #a07020; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px; cursor: pointer; transition: all .15s; text-decoration: none; }
-  .kf-tag-pill:hover { background: #C8922A; color: #fff; border-color: #C8922A; }
+  .kf-tag-pill { background: #fdf3e3; border: 1px solid #f0d898; color: #a07020; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; }
+  .kf-tag-pill:hover, .kf-tag-pill.active { background: #C8922A; color: #fff; border-color: #C8922A; }
   .kf-stat-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); }
   .kf-stat-row:last-child { border: none; }
   .kf-stat-val { color: #C8922A; font-weight: 800; }
@@ -71,17 +117,33 @@
     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="text" placeholder="Tìm kiếm bài viết, chủ đề...">
+    <form method="get" action="{% url 'post_list' %}" class="kf-search-wrap" style="margin:0;">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Tìm kiếm bài viết, chủ đề...">
+    </form>
   </div>
 </div>
 
 <div class="kf-body">
   <div>
-    <div class="kf-tabs">
-      <a href="#" class="kf-tab active">Mới nhất</a>
-      <a href="#" class="kf-tab">Nổi bật</a>
-      <a href="#" class="kf-tab">Chưa trả lời</a>
+<!--     <div class="kf-tabs">
+      <a href="{% url 'post_list' %}" class="kf-tab {% if not active_category and not active_tag %}active{% endif %}">Mới nhất</a>
+    </div> -->
+
+    {% if active_category %}
+    <div class="kf-filter-banner">
+      <span>📂 Danh mục: {{ active_category.name }}</span>
+      <a href="{% url 'post_list' %}" class="kf-filter-clear">✕ Xem tất cả</a>
     </div>
+    {% endif %}
+    {% if active_tag %}
+    <div class="kf-filter-banner">
+      <span>🏷 Tag: #{{ active_tag.name }}</span>
+      <a href="{% url 'post_list' %}" class="kf-filter-clear">✕ Xem tất cả</a>
+    </div>
+    {% endif %}
 
     {% for post in posts %}
     <a href="{% url 'post_detail' post.pk %}" class="kf-card-link">
@@ -103,9 +165,11 @@
         <h3>{{ post.title }}</h3>
         <p>{{ post.content|truncatewords:25 }}</p>
         <div class="kf-card-foot">
-          {% if post.category %}<span class="kf-cat">{{ post.category.name }}</span>{% endif %}
+          {% if post.category %}
+            <a href="{% url 'post_by_category' post.category.slug %}" class="kf-cat" onclick="event.stopPropagation()">{{ post.category.name }}</a>
+          {% endif %}
           {% for tag in post.tags.all|slice:":3" %}
-            <span class="kf-tag">#{{ tag.name }}</span>
+            <a href="{% url 'post_by_tag' tag.slug %}" class="kf-tag" onclick="event.stopPropagation()">#{{ tag.name }}</a>
           {% endfor %}
           <div class="kf-stats">
             <span>💬 {{ post.comments.count }}</span>
@@ -123,11 +187,12 @@
     {% endfor %}
   </div>
 
+  <!-- SIDEBAR -->
   <div>
     <div class="kf-side-card">
       <div class="kf-side-title">Danh mục</div>
       {% for cat in categories %}
-      <a href="#" class="kf-cat-item">
+      <a href="{% url 'post_by_category' cat.slug %}" class="kf-cat-item {% if active_category.pk == cat.pk %}active{% endif %}">
         <div class="kf-cat-left">
           <div class="kf-cat-dot" style="background: #3d7ab5;"></div>
           {{ cat.name }}
@@ -143,7 +208,7 @@
       <div class="kf-side-title">Tags trending</div>
       <div class="kf-tags-wrap">
         {% for tag in tags %}
-          <a href="#" class="kf-tag-pill">#{{ tag.name }}</a>
+          <a href="{% url 'post_by_tag' tag.slug %}" class="kf-tag-pill {% if active_tag.pk == tag.pk %}active{% endif %}">#{{ tag.name }}</a>
         {% empty %}
           <p style="font-size:13px;color:#8aabcc;font-weight:500;">Chưa có tags.</p>
         {% endfor %}

@@ -7,4 +7,8 @@ urlpatterns = [
     path('post/create/', views.post_create, name='post_create'),
     path('post/<int:pk>/edit/', views.post_edit, name='post_edit'),
     path('post/<int:pk>/delete/', views.post_delete, name='post_delete'),
+
+    # Filter theo category và tag
+    path('category/<slug:slug>/', views.post_by_category, name='post_by_category'),
+    path('tag/<slug:slug>/', views.post_by_tag, name='post_by_tag'),
 ]
