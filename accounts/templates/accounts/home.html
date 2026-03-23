@@ -1,0 +1,14 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Trang chủ{% endblock %}
+{% block content %}
+<div class="text-center">
+  {% if user.is_authenticated %}
+    <h4>Xin chào, {{ user.username }}! 👋</h4>
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger mt-3">Đăng xuất</a>
+  {% else %}
+    <h4>Chào mừng!</h4>
+    <a href="{% url 'login' %}" class="btn btn-primary me-2">Đăng nhập</a>
+    <a href="{% url 'register' %}" class="btn btn-outline-primary">Đăng ký</a>
+  {% endif %}
+</div>
+{% endblock %}

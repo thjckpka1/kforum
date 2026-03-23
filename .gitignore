@@ -1,0 +1,28 @@
+# Virtual environment
+venv/
+
+# Database
+db.sqlite3
+
+# Media files (ảnh upload của user)
+post/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django
+*.log
+local_settings.py
+
+# VS Code / editor
+.vscode/
+.idea/
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Environment variables (bảo mật)
+.env

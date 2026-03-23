@@ -1,0 +1,93 @@
+{% extends 'accounts/base.html' %}
+{% block title %}{{ action }} — Kforum{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kf-form-wrap { max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; }
+  .kf-form-card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 2rem;
+  }
+  .kf-form-title { font-size: 22px; font-weight: 800; color: #C8922A; margin-bottom: 1.5rem; }
+  .kf-field { margin-bottom: 1.2rem; }
+  .kf-label { font-size: 13px; font-weight: 700; color: #3a5a80; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .04em; }
+  .kf-field input, .kf-field textarea, .kf-field select {
+    width: 100%;
+    background: rgba(255,255,255,0.85);
+    border: 1.5px solid #c8ddf0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 500;
+    color: #1a3a6a;
+    outline: none;
+    transition: all .2s;
+  }
+  .kf-field input:focus, .kf-field textarea:focus, .kf-field select:focus {
+    border-color: #3d7ab5;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(61,122,181,0.1);
+  }
+  .kf-field textarea { resize: vertical; min-height: 160px; }
+  .kf-field .errorlist { color: #c0392b; font-size: 12px; font-weight: 600; list-style: none; padding: 0; margin-top: 4px; }
+  .kf-field .helptext { font-size: 12px; color: #8aabcc; font-weight: 500; margin-top: 4px; }
+
+  .kf-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .kf-checkbox-item { display: flex; align-items: center; gap: 6px; background: #fdf3e3; border: 1px solid #f0d898; border-radius: 20px; padding: 5px 12px; cursor: pointer; transition: all .2s; }
+  .kf-checkbox-item:has(input:checked) { background: #C8922A; border-color: #C8922A; }
+  .kf-checkbox-item:has(input:checked) label { color: #fff; }
+  .kf-checkbox-item input { display: none; }
+  .kf-checkbox-item label { font-size: 13px; font-weight: 700; color: #a07020; cursor: pointer; }
+
+  .kf-form-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+  .kf-btn-submit { background: linear-gradient(135deg,#C8922A,#a07020); color: #fff; border: none; padding: 11px 28px; border-radius: 22px; font-size: 15px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; transition: opacity .2s; }
+  .kf-btn-submit:hover { opacity: 0.9; }
+  .kf-btn-cancel { background: rgba(26,74,138,0.08); color: #3a5a80; border: none; padding: 11px 22px; border-radius: 22px; font-size: 15px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  .kf-btn-cancel:hover { background: rgba(26,74,138,0.14); color: #3a5a80; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kf-form-wrap">
+  <div class="kf-form-card">
+    <div class="kf-form-title">{{ action }}</div>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="kf-field">
+          <label class="kf-label">{{ field.label }}</label>
+          {% if field.name == 'tags' %}
+            <div class="kf-checkbox-group">
+              {% for choice in field.field.queryset %}
+                <div class="kf-checkbox-item">
+                  <input type="checkbox" name="{{ field.html_name }}" value="{{ choice.pk }}" id="tag_{{ choice.pk }}"
+                    {% if choice in field.value %}checked{% endif %}>
+                  <label for="tag_{{ choice.pk }}">#{{ choice.name }}</label>
+                </div>
+              {% empty %}
+                <p style="font-size:13px;color:#8aabcc;">Chưa có tag nào. Admin cần tạo tag trong <a href="/admin/" style="color:#3d7ab5;">trang quản trị</a>.</p>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ field }}
+          {% endif %}
+          {% if field.errors %}
+            <ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+          {% if field.help_text %}
+            <div class="helptext">{{ field.help_text }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="kf-form-actions">
+        <button type="submit" class="kf-btn-submit">{{ action }}</button>
+        <a href="{% url 'post_list' %}" class="kf-btn-cancel">Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Xóa bài — Kforum{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kf-delete-wrap { max-width: 500px; margin: 3rem auto; padding: 0 1.5rem; }
+  .kf-delete-card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .kf-delete-icon { font-size: 48px; margin-bottom: 1rem; }
+  .kf-delete-title { font-size: 20px; font-weight: 800; color: #1a3a6a; margin-bottom: 8px; }
+  .kf-delete-sub { font-size: 14px; color: #5a7090; margin-bottom: 1.5rem; font-weight: 500; }
+  .kf-delete-sub strong { color: #C8922A; }
+  .kf-btn-danger { background: linear-gradient(135deg,#e74c3c,#c0392b); color: #fff; border: none; padding: 11px 24px; border-radius: 22px; font-size: 14px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; }
+  .kf-btn-cancel { background: rgba(26,74,138,0.08); color: #3a5a80; border: none; padding: 11px 22px; border-radius: 22px; font-size: 14px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; margin-left: 10px; }
+  .kf-btn-cancel:hover { background: rgba(26,74,138,0.14); color: #3a5a80; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kf-delete-wrap">
+  <div class="kf-delete-card">
+    <div class="kf-delete-icon">🗑️</div>
+    <div class="kf-delete-title">Xóa bài viết?</div>
+    <div class="kf-delete-sub">Bạn có chắc muốn xóa bài "<strong>{{ post.title }}</strong>" không? Hành động này không thể hoàn tác.</div>
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="kf-btn-danger">Xóa bài</button>
+      <a href="{% url 'post_detail' post.pk %}" class="kf-btn-cancel">Hủy</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

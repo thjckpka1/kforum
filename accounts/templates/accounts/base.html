@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Kforum{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #1a4a8a 0%, #2d6cc0 20%, #5a9fd4 45%, #a8cce8 70%, #e8f4fb 90%, #f5faff 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* ── Navbar ── */
+    .kf-nav {
+      background: rgba(15, 45, 100, 0.65);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .kf-logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .kf-logo span { color: #C8922A; }
+    .kf-nav-links { display: flex; gap: 2px; }
+    .kf-nav-links a {
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .kf-nav-links a:hover, .kf-nav-links a.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    .kf-nav-right { display: flex; align-items: center; gap: 10px; }
+    .kf-btn-post {
+      background: linear-gradient(135deg, #C8922A, #a07020);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 22px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity .2s;
+    }
+    .kf-btn-post:hover { opacity: 0.9; color: #fff; }
+    .kf-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C8922A, #e0b050);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.3);
+      text-decoration: none;
+    }
+    .kf-nav-login {
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      transition: all .2s;
+    }
+    .kf-nav-login:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    /* ── Main content ── */
+    .kf-main { padding-bottom: 0; }
+
+    /* ── Alerts ── */
+    .kf-alerts { max-width: 980px; margin: 1rem auto 0; padding: 0 1.5rem; }
+
+    /* ── Cards (glassmorphism) ── */
+    .kf-card {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 18px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 12px;
+      transition: all .25s;
+    }
+    .kf-card:hover {
+      background: rgba(255,255,255,0.92);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(26,74,138,0.12);
+    }
+
+    /* ── Sidebar card ── */
+    .kf-side-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 12px;
+    }
+    .kf-side-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #C8922A;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    /* ── Form inputs ── */
+    .kf-form-control {
+      font-family: 'Nunito', sans-serif !important;
+      border-radius: 12px !important;
+      border: 1.5px solid #c8ddf0 !important;
+      background: rgba(255,255,255,0.85) !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      padding: 10px 14px !important;
+      transition: all .2s !important;
+    }
+    .kf-form-control:focus {
+      border-color: #3d7ab5 !important;
+      background: #fff !important;
+      box-shadow: 0 0 0 3px rgba(61,122,181,0.1) !important;
+    }
+    .form-control { font-family: 'Nunito', sans-serif; }
+
+    /* ── Badges ── */
+    .kf-cat {
+      background: #e8f0fa; color: #1a5aaa;
+      font-size: 11px; padding: 3px 11px;
+      border-radius: 20px; font-weight: 700;
+    }
+    .kf-tag {
+      background: #fdf3e3; color: #a07020;
+      font-size: 11px; padding: 3px 9px;
+      border-radius: 20px; font-weight: 600;
+      border: 1px solid #f0e0b0;
+    }
+    .kf-hot-badge {
+      background: linear-gradient(135deg, #C8922A, #e0b050);
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px;
+    }
+
+    /* ── Footer ── */
+    .kf-footer {
+      background: rgba(10, 30, 70, 0.88);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .kf-footer p { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; margin: 0; }
+    .kf-footer strong { color: #C8922A; font-weight: 800; }
+    .kf-footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin: 0 8px; font-size: 12px; }
+    .kf-footer a:hover { color: #C8922A; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav class="kf-nav">
+  <a href="{% url 'post_list' %}" class="kf-logo">K<span>forum</span></a>
+
+  <div class="kf-nav-links">
+    <a href="{% url 'post_list' %}" class="{% if request.resolver_match.url_name == 'post_list' %}active{% endif %}">Trang chủ</a>
+    <a href="{% url 'post_list' %}">Khám phá</a>
+    <a href="#">Nổi bật</a>
+    <a href="#">Hỏi đáp</a>
+  </div>
+
+  <div class="kf-nav-right">
+    {% if user.is_authenticated %}
+      <a href="{% url 'post_create' %}" class="kf-btn-post">＋ Đăng bài</a>
+      <a href="{% url 'logout' %}" class="kf-nav-login">Đăng xuất</a>
+      <div class="kf-avatar">{{ user.username|first|upper }}</div>
+    {% else %}
+      <a href="{% url 'register' %}" class="kf-btn-post">Đăng ký</a>
+      <a href="{% url 'login' %}" class="kf-nav-login">Đăng nhập</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main class="kf-main">
+  {% if messages %}
+    <div class="kf-alerts">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius:12px;font-weight:600;font-family:'Nunito',sans-serif;">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="kf-footer">
+  <p>
+    <strong>Kforum</strong> · Cộng đồng chia sẻ kiến thức
+    <br>
+    <a href="#">Giới thiệu</a>
+    <a href="#">Nội quy</a>
+    <a href="#">Liên hệ</a>
+    <br>
+    <span style="font-size:12px;opacity:0.4;margin-top:6px;display:block;">© 2025 Kforum. All rights reserved.</span>
+  </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,156 @@
+{% extends 'accounts/base.html' %}
+{% block title %}{{ post.title }} — Kforum{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kf-detail-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 1fr 230px; gap: 1.25rem; }
+
+  .kf-post-card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .kf-post-title { font-size: 22px; font-weight: 800; color: #1a3a6a; margin-bottom: 10px; line-height: 1.4; }
+  .kf-post-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .kf-post-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#3d7ab5,#1a5090); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700; }
+  .kf-post-author { font-size: 14px; font-weight: 700; color: #2d5a8a; }
+  .kf-post-date { font-size: 13px; color: #8aabcc; font-weight: 500; }
+  .kf-post-body { font-size: 15px; color: #2a4060; line-height: 1.8; font-weight: 400; margin-bottom: 1rem; }
+  .kf-post-img { width: 100%; border-radius: 14px; margin-bottom: 1rem; max-height: 400px; object-fit: cover; }
+  .kf-post-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 0.75rem; }
+  .kf-post-actions { display: flex; gap: 8px; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.07); }
+  .kf-btn-edit { background: rgba(61,122,181,0.1); color: #1a5aaa; border: none; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; text-decoration: none; }
+  .kf-btn-edit:hover { background: rgba(61,122,181,0.2); color: #1a5aaa; }
+  .kf-btn-delete { background: rgba(220,53,69,0.08); color: #c0392b; border: none; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; text-decoration: none; }
+  .kf-btn-delete:hover { background: rgba(220,53,69,0.15); color: #c0392b; }
+  .kf-back { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 600; text-decoration: none; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.12); margin: 1rem 1.5rem 0; transition: all .2s; }
+  .kf-back:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .kf-comments-title { font-size: 16px; font-weight: 800; color: #C8922A; margin-bottom: 1rem; }
+  .kf-comment {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 14px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 10px;
+  }
+  .kf-comment-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .kf-comment-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,#C8922A,#e0b050); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; }
+  .kf-comment-author { font-size: 13px; font-weight: 700; color: #2d5a8a; }
+  .kf-comment-date { font-size: 12px; color: #8aabcc; }
+  .kf-comment-body { font-size: 14px; color: #3a5070; line-height: 1.6; }
+
+  .kf-comment-form {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 16px;
+    padding: 1.1rem;
+    margin-top: 0.5rem;
+  }
+  .kf-comment-form textarea {
+    width: 100%; background: rgba(255,255,255,0.8); border: 1.5px solid #c8ddf0; border-radius: 12px;
+    padding: 10px 14px; font-size: 14px; font-family: 'Nunito',sans-serif; font-weight: 500;
+    resize: vertical; outline: none; transition: all .2s;
+  }
+  .kf-comment-form textarea:focus { border-color: #3d7ab5; background: #fff; }
+  .kf-btn-submit { background: linear-gradient(135deg,#C8922A,#a07020); color: #fff; border: none; padding: 9px 22px; border-radius: 22px; font-size: 14px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; margin-top: 10px; }
+  .kf-btn-submit:hover { opacity: 0.9; }
+  .kf-login-hint { font-size: 14px; color: #5a7090; font-weight: 500; margin-top: 0.5rem; }
+  .kf-login-hint a { color: #3d7ab5; font-weight: 700; }
+
+  .kf-side-card { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.9); border-radius: 16px; padding: 1rem; margin-bottom: 12px; }
+  .kf-side-title { font-size: 11px; font-weight: 800; color: #C8922A; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  .kf-info-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .kf-info-row:last-child { border: none; }
+  .kf-info-val { color: #1a5aaa; font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'post_list' %}" class="kf-back">← Quay lại diễn đàn</a>
+
+<div class="kf-detail-wrap">
+  <div>
+    <div class="kf-post-card">
+      <h1 class="kf-post-title">{{ post.title }}</h1>
+      <div class="kf-post-meta">
+        <div class="kf-post-avatar">{{ post.author.username|first|upper }}</div>
+        <span class="kf-post-author">{{ post.author.username }}</span>
+        <span class="kf-post-date">{{ post.created_at|date:"d/m/Y H:i" }}</span>
+        {% if post.category %}<span class="kf-cat">{{ post.category.name }}</span>{% endif %}
+      </div>
+      {% if post.image %}
+        <img src="{{ post.image.url }}" alt="ảnh bài viết" class="kf-post-img">
+      {% endif %}
+      <div class="kf-post-body">{{ post.content|linebreaks }}</div>
+      <div class="kf-post-tags">
+        {% for tag in post.tags.all %}
+          <span class="kf-tag">#{{ tag.name }}</span>
+        {% endfor %}
+      </div>
+      {% if user == post.author %}
+        <div class="kf-post-actions">
+          <a href="{% url 'post_edit' post.pk %}" class="kf-btn-edit">✏️ Sửa bài</a>
+          <a href="{% url 'post_delete' post.pk %}" class="kf-btn-delete">🗑 Xóa bài</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="kf-post-card">
+      <div class="kf-comments-title">💬 Bình luận ({{ comments.count }})</div>
+      {% for comment in comments %}
+        <div class="kf-comment">
+          <div class="kf-comment-top">
+            <div class="kf-comment-avatar">{{ comment.author.username|first|upper }}</div>
+            <span class="kf-comment-author">{{ comment.author.username }}</span>
+            <span class="kf-comment-date">{{ comment.created_at|timesince }} trước</span>
+          </div>
+          <div class="kf-comment-body">{{ comment.content }}</div>
+        </div>
+      {% empty %}
+        <p style="color:#8aabcc;font-size:14px;font-weight:500;">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+      {% endfor %}
+
+      {% if user.is_authenticated %}
+        <div class="kf-comment-form" style="margin-top:1rem;">
+          <form method="POST">
+            {% csrf_token %}
+            <textarea name="content" rows="3" placeholder="Viết bình luận của bạn..."></textarea>
+            <button type="submit" class="kf-btn-submit">Gửi bình luận</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="kf-login-hint"><a href="{% url 'login' %}">Đăng nhập</a> để bình luận.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="kf-side-card">
+      <div class="kf-side-title">Thông tin bài viết</div>
+      <div class="kf-info-row"><span>Tác giả</span><span class="kf-info-val">{{ post.author.username }}</span></div>
+      <div class="kf-info-row"><span>Đăng lúc</span><span class="kf-info-val">{{ post.created_at|date:"d/m/Y" }}</span></div>
+      <div class="kf-info-row"><span>Bình luận</span><span class="kf-info-val">{{ comments.count }}</span></div>
+      {% if post.category %}
+        <div class="kf-info-row"><span>Danh mục</span><span class="kf-info-val">{{ post.category.name }}</span></div>
+      {% endif %}
+    </div>
+
+    {% if post.tags.all %}
+    <div class="kf-side-card">
+      <div class="kf-side-title">Tags</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        {% for tag in post.tags.all %}
+          <span class="kf-tag">#{{ tag.name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

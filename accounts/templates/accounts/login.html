@@ -1,0 +1,61 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Đăng nhập — Kforum{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kf-auth-wrap { max-width: 420px; margin: 3rem auto; padding: 0 1.5rem; }
+  .kf-auth-card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 2rem;
+  }
+  .kf-auth-title { font-size: 22px; font-weight: 800; color: #C8922A; margin-bottom: 4px; }
+  .kf-auth-sub { font-size: 14px; color: #5a7090; font-weight: 500; margin-bottom: 1.5rem; }
+  .kf-field { margin-bottom: 1rem; }
+  .kf-label { font-size: 12px; font-weight: 700; color: #3a5a80; margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: .04em; }
+  .kf-field input {
+    width: 100%; background: rgba(255,255,255,0.85); border: 1.5px solid #c8ddf0;
+    border-radius: 12px; padding: 10px 14px; font-size: 14px; font-family: 'Nunito',sans-serif;
+    font-weight: 500; color: #1a3a6a; outline: none; transition: all .2s;
+  }
+  .kf-field input:focus { border-color: #3d7ab5; background: #fff; box-shadow: 0 0 0 3px rgba(61,122,181,0.1); }
+  .kf-field .errorlist { color: #c0392b; font-size: 12px; font-weight: 600; list-style: none; padding: 0; margin-top: 4px; }
+  .kf-btn-auth { width: 100%; background: linear-gradient(135deg,#1a5aaa,#3d7ab5); color: #fff; border: none; padding: 12px; border-radius: 22px; font-size: 15px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; margin-top: 0.5rem; transition: opacity .2s; }
+  .kf-btn-auth:hover { opacity: 0.9; }
+  .kf-auth-foot { text-align: center; margin-top: 1rem; font-size: 14px; color: #5a7090; font-weight: 500; }
+  .kf-auth-foot a { color: #3d7ab5; font-weight: 700; text-decoration: none; }
+  .kf-auth-foot a:hover { text-decoration: underline; }
+  .kf-non-field-errors { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 12px; padding: 10px 14px; margin-bottom: 1rem; }
+  .kf-non-field-errors li { font-size: 13px; color: #c0392b; font-weight: 600; list-style: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kf-auth-wrap">
+  <div class="kf-auth-card">
+    <div class="kf-auth-title">Chào mừng trở lại!</div>
+    <div class="kf-auth-sub">Đăng nhập vào tài khoản Kforum của bạn</div>
+    <form method="POST">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <ul class="kf-non-field-errors">
+          {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+      {% for field in form %}
+        <div class="kf-field">
+          <label class="kf-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="kf-btn-auth">Đăng nhập</button>
+    </form>
+    <div class="kf-auth-foot">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký ngay</a></div>
+  </div>
+</div>
+{% endblock %}
