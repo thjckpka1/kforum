@@ -226,3 +226,56 @@
 .kf-btn-submit-lg:hover { opacity: 0.9; }
 .kf-btn-cancel { background: rgba(26,74,138,0.08); color: #3a5a80; border: none; padding: 11px 22px; border-radius: 22px; font-size: 15px; font-weight: 700; font-family: 'Nunito',sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
 .kf-btn-cancel:hover { background: rgba(26,74,138,0.14); color: #3a5a80; }
+
+/* Đảm bảo ảnh trong nội dung bài viết responsive */
+.kf-post-body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ========== RESPONSIVE MOBILE ========== */
+@media (max-width: 680px) {
+
+  /* Layout 2 cột → 1 cột, sidebar xuống dưới */
+  .kf-body,
+  .kf-detail-wrap {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* Hero */
+  .kf-hero { padding: 1.5rem 1rem 1rem; }
+  .kf-hero h1 { font-size: 22px; }
+  .kf-hero p { font-size: 13px; }
+
+  /* Search */
+  .kf-search-wrap { max-width: 100%; }
+
+  /* Card */
+  .kf-card { padding: 0.9rem 1rem; }
+  .kf-card h3 { font-size: 14px; }
+
+  /* Post detail */
+  .kf-post-title { font-size: 18px; }
+  .kf-post-body { font-size: 14px; }
+  .kf-back { margin: 0.75rem 1rem 0; font-size: 13px; }
+
+  /* Post form */
+  .kf-form-wrap { margin: 1rem auto; padding: 0 1rem; }
+  .kf-form-card { padding: 1.25rem; }
+  .kf-form-actions { flex-direction: column; }
+  .kf-btn-submit-lg,
+  .kf-btn-cancel { width: 100%; justify-content: center; text-align: center; }
+}
+
+@media (max-width: 400px) {
+  .kf-post-meta { gap: 6px; }
+  .kf-post-actions { flex-direction: column; }
+  .kf-btn-edit,
+  .kf-btn-delete { text-align: center; }
+}

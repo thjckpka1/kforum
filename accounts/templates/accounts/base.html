@@ -15,14 +15,17 @@
 <nav class="kf-nav">
   <a href="{% url 'post_list' %}" class="kf-logo">K<span>forum</span></a>
 
-  <div class="kf-nav-links">
+<!--   <div class="kf-nav-links">
     <a href="{% url 'post_list' %}" class="{% if request.resolver_match.url_name == 'post_list' %}active{% endif %}">Trang chủ</a>
     <a href="{% url 'post_list' %}" class="{% if request.resolver_match.url_name == 'post_list' %}active{% endif %}">Khám phá</a>
-  </div>
+  </div> -->
 
   <div class="kf-nav-right">
     {% if user.is_authenticated %}
-      <a href="{% url 'post_create' %}" class="kf-btn-post">＋ Đăng bài</a>
+      <a href="{% url 'post_create' %}" class="kf-btn-post">
+        <span class="kf-btn-post-icon">＋</span>
+        <span class="kf-btn-post-text">Đăng bài</span>
+      </a>
 
       <!-- Avatar với dropdown -->
       <div class="kf-avatar-wrap" id="avatarWrap">

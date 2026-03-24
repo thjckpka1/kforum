@@ -6,31 +6,33 @@
 
 {% block extra_css %}
 <link href="{% static 'css/forum.css' %}" rel="stylesheet">
+<style>
+  /* Highlight style cho từ khóa tìm kiếm */
+  .kf-highlight {
+    background-color: #ffeb3b;
+    color: #000;
+    padding: 0 2px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="kf-hero">
   <h1>Chào mừng đến với <span>Kforum</span></h1>
   <p>Nơi chia sẻ kiến thức, thảo luận và kết nối cộng đồng</p>
-  <div class="kf-search-wrap">
+  <!-- SỬA: loại bỏ div thừa, chỉ giữ form -->
+  <form method="get" action="{% url 'post_list' %}" class="kf-search-wrap">
     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <form method="get" action="{% url 'post_list' %}" class="kf-search-wrap" style="margin:0;">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" name="q" value="{{ search_query }}" placeholder="Tìm kiếm bài viết, chủ đề...">
-    </form>
-  </div>
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Tìm kiếm bài viết, chủ đề...">
+  </form>
 </div>
 
 <div class="kf-body">
   <div>
-<!--     <div class="kf-tabs">
-      <a href="{% url 'post_list' %}" class="kf-tab {% if not active_category and not active_tag %}active{% endif %}">Mới nhất</a>
-    </div> -->
-
     {% if active_category %}
     <div class="kf-filter-banner">
       <span>📂 Danh mục: {{ active_category.name }}</span>
@@ -54,15 +56,13 @@
           <div class="kf-card-meta">
             <strong>{{ post.author.username }}</strong> · {{ post.created_at|timesince }} trước
           </div>
-          {% if forloop.first %}
-            <span class="kf-hot-badge">MỚI</span>
-          {% endif %}
         </div>
         {% if post.image %}
           <div class="kf-img-thumb"><img src="{{ post.image.url }}" alt="ảnh bài viết"></div>
         {% endif %}
         <h3>{{ post.title }}</h3>
-        <p>{{ post.content|truncatewords:25 }}</p>
+        <!-- <p>{{ post.content|truncatewords:25 }}</p> -->
+        <p>{{ post.content|striptags|truncatewords:25 }}</p>
         <div class="kf-card-foot">
           {% if post.category %}
             <a href="{% url 'post_by_category' post.category.slug %}" class="kf-cat" onclick="event.stopPropagation()">{{ post.category.name }}</a>
@@ -122,4 +122,26 @@
     </div>
   </div>
 </div>
+
+<!-- Highlight từ khóa tìm kiếm -->
+{% if search_query %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const keyword = "{{ search_query|escapejs }}";
+    if (keyword) {
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        const regex = new RegExp(`(${escapeRegex(keyword)})`, 'gi');
+        const elements = document.querySelectorAll('.kf-card h3, .kf-card p, .kf-card-meta strong');
+        elements.forEach(el => {
+            const originalText = el.textContent;
+            if (originalText.toLowerCase().includes(keyword.toLowerCase())) {
+                el.innerHTML = originalText.replace(regex, '<mark class="kf-highlight">$1</mark>');
+            }
+        });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

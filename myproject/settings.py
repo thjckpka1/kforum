@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'forum',
+    'ckeditor',
+    'ckeditor_uploader',   # nếu cần upload ảnh
 ]
 
 MIDDLEWARE = [
@@ -119,3 +121,18 @@ USE_TZ = True
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 300,
+        'width': '100%',
+        'allowedContent': True,   # Bật lọc (có thể cài chi tiết)
+        'removePlugins': 'stylesheetparser',   # vô hiệu hóa CSS nhúng
+        'extraAllowedContent': 'p{text-align}; img[!src,alt,width,height]',
+        'disallowedContent': 'script; iframe; embed; object; form; input; button',
+        'protectedSource': [],  # không cho phép nhúng mã nguồn
+    },
+}
+CKEDITOR_UPLOAD_PATH = "uploads/"   # thư mục lưu ảnh trong media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

@@ -11,6 +11,9 @@ class PostForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
 
+        self.fields['category'].required = True
+        self.fields['category'].empty_label = None
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment

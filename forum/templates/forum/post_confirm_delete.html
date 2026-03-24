@@ -5,3 +5,25 @@
 {% block extra_css %}
 <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
 {% endblock %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 3rem auto; padding: 0 1.5rem;">
+  <div class="kf-card" style="padding: 2rem; text-align: center;">
+    <div style="font-size: 40px; margin-bottom: 1rem;">🗑</div>
+    <h2 style="font-size: 18px; font-weight: 800; color: #1a3a6a; margin-bottom: 8px;">Xóa bài viết?</h2>
+    <p style="font-size: 14px; color: #5a7090; margin-bottom: 1.5rem;">
+      Bạn có chắc muốn xóa bài <strong style="color: #1a3a6a;">{{ post.title }}</strong>?
+      <br>Hành động này không thể hoàn tác.
+    </p>
+    <form method="post" style="display: flex; gap: 10px; justify-content: center;">
+	  {% csrf_token %}
+	  <button type="submit" class="kf-btn-delete">
+	    🗑 Xác nhận xóa
+	  </button>
+	  <a href="{% url 'post_detail' post.pk %}" class="kf-btn-edit">
+	    ✕ Hủy
+	  </a>
+	</form>
+  </div>
+</div>
+{% endblock %}

@@ -219,3 +219,33 @@ body {
 .kf-footer strong { color: #C8922A; font-weight: 800; }
 .kf-footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin: 0 8px; font-size: 12px; }
 .kf-footer a:hover { color: #C8922A; }
+
+/* ========== RESPONSIVE NAVBAR MOBILE ========== */
+@media (max-width: 680px) {
+
+  /* Ẩn nav links (Trang chủ / Khám phá) — không cần thiết trên mobile */
+  .kf-nav-links { display: none; }
+
+  /* Navbar gọn hơn */
+  .kf-nav { padding: 0 1rem; height: 52px; }
+
+  /* Logo nhỏ lại chút */
+  .kf-logo { font-size: 20px; }
+
+  /* Nút "Đăng bài" — bỏ chữ, chỉ giữ dấu + */
+  .kf-btn-post { padding: 7px 12px; font-size: 13px; }
+
+  /* Đăng nhập / Đăng ký — nhỏ lại */
+  .kf-nav-login { padding: 5px 10px; font-size: 13px; }
+
+  /* Dropdown không bị cắt ở cạnh phải */
+  .kf-dropdown-inner { min-width: 160px; }
+
+  /* Alerts padding */
+  .kf-alerts { padding: 0 1rem; }
+
+  /* Footer gọn hơn */
+  .kf-footer { padding: 1.2rem 1rem; margin-top: 1.5rem; }
+
+  .kf-btn-post-text { display: none; }
+}

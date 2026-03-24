@@ -24,7 +24,8 @@
       {% if post.image %}
         <img src="{{ post.image.url }}" alt="ảnh bài viết" class="kf-post-img">
       {% endif %}
-      <div class="kf-post-body">{{ post.content|linebreaks }}</div>
+      <!-- <div class="kf-post-body">{{ post.content|linebreaks }}</div> -->
+      <div class="kf-post-body">{{ post.content|safe }}</div>
       <div class="kf-post-tags">
         {% for tag in post.tags.all %}
           <a href="{% url 'post_by_tag' tag.slug %}" class="kf-tag">#{{ tag.name }}</a>
@@ -63,46 +64,88 @@
             <button type="submit" class="kf-btn-submit">Gửi bình luận</button>
           </form>
 
+          <!-- Dữ liệu user an toàn cho AJAX comment -->
+          <div id="comment-user-data" 
+               data-username="{{ request.user.username|escape }}" 
+               data-avatar="{{ request.user.username|first|upper|escape }}">
+          </div>
           <script>
           document.getElementById('comment-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const content = document.getElementById('comment-content').value.trim();
-            if (!content) return;
+              e.preventDefault();
+              const content = document.getElementById('comment-content').value.trim();
+              if (!content) return;
 
-            fetch("{% url 'post_detail' post.pk %}", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest',
-              },
-              body: 'content=' + encodeURIComponent(content),
-            })
-            .then(res => {
-              if (res.ok) {
-                // Thêm comment mới vào DOM không reload
-                const commentsDiv = document.getElementById('comments-list');
-                const now = 'vừa xong';
-                const initial = '{{ request.user.username|first|upper }}';
-                const username = '{{ request.user.username }}';
-                const html = `
-                  <div class="kf-comment">
-                    <div class="kf-comment-top">
-                      <div class="kf-comment-avatar">${initial}</div>
-                      <span class="kf-comment-author">${username}</span>
-                      <span class="kf-comment-date">${now} trước</span>
-                    </div>
-                    <div class="kf-comment-body">${content.replace(/\n/g,'<br>')}</div>
-                  </div>`;
-                commentsDiv.insertAdjacentHTML('beforeend', html);
-                document.getElementById('comment-content').value = '';
+              fetch("{% url 'post_detail' post.pk %}", {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'X-CSRFToken': '{{ csrf_token }}',
+                      'X-Requested-With': 'XMLHttpRequest',
+                  },
+                  body: 'content=' + encodeURIComponent(content),
+              })
+              .then(res => {
+                  if (res.ok) {
+                      // Lấy dữ liệu user từ data attributes
+                      const userDataDiv = document.getElementById('comment-user-data');
+                      const username = userDataDiv.dataset.username;
+                      const initial = userDataDiv.dataset.avatar;
 
-                // Cập nhật số lượng comment
-                const title = document.getElementById('comments');
-                const count = commentsDiv.querySelectorAll('.kf-comment').length;
-                title.textContent = '💬 Bình luận (' + count + ')';
-              }
-            });
+                      // Hàm escape HTML đầy đủ
+                      function escapeHtml(str) {
+                          if (!str) return '';
+                          return str
+                              .replace(/&/g, '&amp;')
+                              .replace(/</g, '&lt;')
+                              .replace(/>/g, '&gt;')
+                              .replace(/"/g, '&quot;')
+                              .replace(/'/g, '&#39;')
+                              .replace(/`/g, '&#96;')
+                              .replace(/\//g, '&#x2F;');
+                      }
+                      const escapedContent = escapeHtml(content).replace(/\n/g, '<br>');
+
+                      // Tạo DOM element bằng createElement (an toàn)
+                      const commentsDiv = document.getElementById('comments-list');
+                      const commentDiv = document.createElement('div');
+                      commentDiv.className = 'kf-comment';
+
+                      const topDiv = document.createElement('div');
+                      topDiv.className = 'kf-comment-top';
+
+                      const avatarDiv = document.createElement('div');
+                      avatarDiv.className = 'kf-comment-avatar';
+                      avatarDiv.textContent = initial;   // an toàn
+
+                      const authorSpan = document.createElement('span');
+                      authorSpan.className = 'kf-comment-author';
+                      authorSpan.textContent = username; // an toàn
+
+                      const dateSpan = document.createElement('span');
+                      dateSpan.className = 'kf-comment-date';
+                      dateSpan.textContent = 'vừa xong';
+
+                      topDiv.appendChild(avatarDiv);
+                      topDiv.appendChild(authorSpan);
+                      topDiv.appendChild(dateSpan);
+
+                      const bodyDiv = document.createElement('div');
+                      bodyDiv.className = 'kf-comment-body';
+                      bodyDiv.innerHTML = escapedContent; // đã escape
+
+                      commentDiv.appendChild(topDiv);
+                      commentDiv.appendChild(bodyDiv);
+                      commentsDiv.appendChild(commentDiv);
+
+                      // Xóa nội dung textarea
+                      document.getElementById('comment-content').value = '';
+
+                      // Cập nhật số lượng bình luận
+                      const commentsTitle = document.getElementById('comments');
+                      const commentCount = commentsDiv.querySelectorAll('.kf-comment').length;
+                      commentsTitle.textContent = '💬 Bình luận (' + commentCount + ')';
+                  }
+              });
           });
           </script>
         </div>
