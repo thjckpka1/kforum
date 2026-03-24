@@ -1,112 +1,11 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
 {% block title %}
   {% if page_title %}{{ page_title }} — Kforum{% else %}Trang chủ — Kforum{% endif %}
 {% endblock %}
 
 {% block extra_css %}
-<style>
-  .kf-hero { padding: 2.5rem 1.5rem 1.5rem; text-align: center; }
-  .kf-hero h1 { font-size: 30px; font-weight: 800; color: #fff; margin-bottom: 8px; text-shadow: 0 2px 12px rgba(10,40,100,0.3); }
-  .kf-hero h1 span { color: #C8922A; }
-  .kf-hero p { color: rgba(255,255,255,0.75); font-size: 15px; font-weight: 500; }
-
-  .kf-search-wrap { margin: 1.2rem auto 0; max-width: 500px; position: relative; }
-  .kf-search-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: rgba(255,255,255,0.6); fill: none; pointer-events: none; }
-  .kf-search-wrap input {
-    width: 100%;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-    border: 1.5px solid rgba(255,255,255,0.35);
-    border-radius: 28px;
-    padding: 11px 22px 11px 42px;
-    color: #fff;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 500;
-    outline: none;
-    transition: all .2s;
-  }
-  .kf-search-wrap input:focus { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.6); }
-  .kf-search-wrap input::placeholder { color: rgba(255,255,255,0.55); }
-
-  .kf-body { display: grid; grid-template-columns: 1fr 230px; gap: 1.25rem; padding: 1.5rem; max-width: 980px; margin: 0 auto; }
-
-  .kf-tabs { display: flex; gap: 4px; margin-bottom: 1rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); padding: 4px; border-radius: 14px; width: fit-content; }
-  .kf-tab { padding: 6px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.65); cursor: pointer; transition: all .2s; text-decoration: none; }
-  .kf-tab.active, .kf-tab:hover { background: #fff; color: #1a4a8a; }
-
-  /* Filter banner */
-  .kf-filter-banner {
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 14px;
-    padding: 10px 16px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .kf-filter-banner span { color: #fff; font-size: 14px; font-weight: 700; }
-  .kf-filter-clear { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; text-decoration: none; }
-  .kf-filter-clear:hover { color: #fff; }
-
-  .kf-card-link { text-decoration: none; display: block; }
-  .kf-card-top { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
-  .kf-card-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
-  .kf-card-meta { font-size: 12px; color: #7a8fa8; font-weight: 500; }
-  .kf-card-meta strong { color: #2d5a8a; font-weight: 700; }
-  .kf-card h3 { font-size: 15px; font-weight: 700; color: #1a3a6a; margin-bottom: 6px; line-height: 1.45; }
-  .kf-card p { font-size: 13px; color: #5a7090; line-height: 1.65; margin-bottom: 10px; font-weight: 400; }
-  .kf-card-foot { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-  .kf-stats { margin-left: auto; display: flex; gap: 12px; font-size: 12px; color: #8aabcc; font-weight: 600; }
-  .kf-img-thumb { width: 100%; height: 90px; border-radius: 12px; margin-bottom: 9px; background: linear-gradient(135deg,#d0e8f8,#e8d8b0); display: flex; align-items: center; justify-content: center; color: #7a9ab8; font-size: 12px; font-weight: 600; overflow: hidden; }
-  .kf-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-  /* Category & Tag trong card — dạng link */
-  .kf-cat {
-    display: inline-block;
-    background: rgba(61,122,181,0.12);
-    color: #1a5aaa;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all .15s;
-  }
-  .kf-cat:hover, .kf-cat.active { background: #1a5aaa; color: #fff; }
-  .kf-tag {
-    display: inline-block;
-    background: rgba(200,146,42,0.1);
-    color: #a07020;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all .15s;
-  }
-  .kf-tag:hover, .kf-tag.active { background: #C8922A; color: #fff; }
-
-  .kf-cat-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); transition: color .15s; text-decoration: none; }
-  .kf-cat-item:last-child { border: none; }
-  .kf-cat-item:hover, .kf-cat-item.active { color: #C8922A; }
-  .kf-cat-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 9px; flex-shrink: 0; }
-  .kf-cat-left { display: flex; align-items: center; }
-  .kf-cat-count { font-size: 11px; color: #8aabcc; background: rgba(26,74,138,0.07); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
-  .kf-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-  .kf-tag-pill { background: #fdf3e3; border: 1px solid #f0d898; color: #a07020; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; }
-  .kf-tag-pill:hover, .kf-tag-pill.active { background: #C8922A; color: #fff; border-color: #C8922A; }
-  .kf-stat-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; font-size: 13px; font-weight: 600; color: #3a5a80; border-bottom: 1px solid rgba(0,0,0,0.04); }
-  .kf-stat-row:last-child { border: none; }
-  .kf-stat-val { color: #C8922A; font-weight: 800; }
-
-  .kf-empty { text-align: center; padding: 3rem 1rem; }
-  .kf-empty p { color: rgba(255,255,255,0.6); font-size: 15px; font-weight: 500; }
-</style>
+<link href="{% static 'css/forum.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
