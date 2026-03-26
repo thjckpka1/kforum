@@ -3,7 +3,7 @@
 
 /* ── Body ── */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   background: linear-gradient(160deg, #1a4a8a 0%, #2d6cc0 20%, #5a9fd4 45%, #a8cce8 70%, #e8f4fb 90%, #f5faff 100%);
   min-height: 100vh;
   margin: 0;

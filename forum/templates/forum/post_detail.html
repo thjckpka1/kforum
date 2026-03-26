@@ -14,8 +14,18 @@
     <div class="kf-post-card">
       <h1 class="kf-post-title">{{ post.title }}</h1>
       <div class="kf-post-meta">
-        <div class="kf-post-avatar">{{ post.author.username|first|upper }}</div>
-        <span class="kf-post-author">{{ post.author.username }}</span>
+        <a href="{% url 'profile_user' post.author.username %}">
+          <div class="kf-post-avatar">
+            {% if post.author.avatar %}
+              <img src="{{ post.author.avatar.url }}" alt="{{ post.author.username }}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% else %}
+              {{ post.author.username|first|upper }}
+            {% endif %}
+          </div>
+        </a>
+        <a href="{% url 'profile_user' post.author.username %}" class="kf-post-author"
+           style="text-decoration:none;">{{ post.author.username }}</a>
         <span class="kf-post-date">{{ post.created_at|date:"d/m/Y H:i" }}</span>
         {% if post.category %}
           <a href="{% url 'post_by_category' post.category.slug %}" class="kf-cat">{{ post.category.name }}</a>
@@ -45,8 +55,18 @@
       {% for comment in comments %}
         <div class="kf-comment">
           <div class="kf-comment-top">
-            <div class="kf-comment-avatar">{{ comment.author.username|first|upper }}</div>
-            <span class="kf-comment-author">{{ comment.author.username }}</span>
+            <a href="{% url 'profile_user' comment.author.username %}">
+              <div class="kf-comment-avatar">
+                {% if comment.author.avatar %}
+                  <img src="{{ comment.author.avatar.url }}" alt="{{ comment.author.username }}"
+                       style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                {% else %}
+                  {{ comment.author.username|first|upper }}
+                {% endif %}
+              </div>
+            </a>
+            <a href="{% url 'profile_user' comment.author.username %}" class="kf-comment-author"
+               style="text-decoration:none;">{{ comment.author.username }}</a>
             <span class="kf-comment-date">{{ comment.created_at|timesince }} trước</span>
           </div>
           <div class="kf-comment-body">{{ comment.content }}</div>
@@ -113,20 +133,37 @@
                       const topDiv = document.createElement('div');
                       topDiv.className = 'kf-comment-top';
 
+                      const profileUrl = "{% url 'profile_user' request.user.username %}";
+
+                      // Avatar bọc trong link
+                      const avatarLink = document.createElement('a');
+                      avatarLink.href = profileUrl;
                       const avatarDiv = document.createElement('div');
                       avatarDiv.className = 'kf-comment-avatar';
-                      avatarDiv.textContent = initial;   // an toàn
+                      {% if request.user.avatar %}
+                        const avatarImg = document.createElement('img');
+                        avatarImg.src = "{{ request.user.avatar.url }}";
+                        avatarImg.alt = username;
+                        avatarImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+                        avatarDiv.appendChild(avatarImg);
+                      {% else %}
+                        avatarDiv.textContent = initial;
+                      {% endif %}
+                      avatarLink.appendChild(avatarDiv);
 
-                      const authorSpan = document.createElement('span');
-                      authorSpan.className = 'kf-comment-author';
-                      authorSpan.textContent = username; // an toàn
+                      // Tên bọc trong link
+                      const authorLink = document.createElement('a');
+                      authorLink.href = profileUrl;
+                      authorLink.className = 'kf-comment-author';
+                      authorLink.style.textDecoration = 'none';
+                      authorLink.textContent = username;
 
                       const dateSpan = document.createElement('span');
                       dateSpan.className = 'kf-comment-date';
                       dateSpan.textContent = 'vừa xong';
 
-                      topDiv.appendChild(avatarDiv);
-                      topDiv.appendChild(authorSpan);
+                      topDiv.appendChild(avatarLink);
+                      topDiv.appendChild(authorLink);
                       topDiv.appendChild(dateSpan);
 
                       const bodyDiv = document.createElement('div');
