@@ -13,6 +13,7 @@
     <div class="kf-auth-sub">Đăng nhập vào tài khoản Kforum của bạn</div>
     <form method="POST">
       {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
       {% if form.non_field_errors %}
         <ul class="kf-non-field-errors">
           {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}

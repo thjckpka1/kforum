@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegisterForm, LoginForm
+from forum.models import Reaction
 
 User = get_user_model()
 
@@ -27,7 +28,8 @@ def login_view(request):
 			user = form.get_user()
 			login(request, user)
 			messages.success(request, 'Đăng nhập thành công!')
-			return redirect('post_list')
+			next_url = request.POST.get('next') or request.GET.get('next') or 'post_list'
+			return redirect(next_url)
 	else:
 		form = LoginForm()
 	return render(request, 'accounts/login.html', {'form': form})
@@ -35,7 +37,8 @@ def login_view(request):
 
 def logout_view(request):
 	logout(request)
-	return redirect('login')
+	next_url = request.POST.get('next') or request.GET.get('next') or 'post_list'
+	return redirect(next_url)
 
 
 def home_view(request):
@@ -46,9 +49,10 @@ def home_view(request):
 def profile_view(request, username=None):
 	# username = request.resolver_match.kwargs.get('username')
 	if username:
+		if not request.user.is_authenticated:   # ← thêm dòng này
+			return redirect('login')            # ← thêm dòng này
 		profile_user = get_object_or_404(User, username=username)
 	else:
-		# Nếu không có username trong URL, phải login mới xem được
 		if not request.user.is_authenticated:
 			return redirect('login')
 		profile_user = request.user
@@ -80,13 +84,28 @@ def profile_view(request, username=None):
 	# Lấy bài viết của user này
 	user_posts = profile_user.posts.order_by('-created_at')
 
+	post_nice_count    = Reaction.objects.filter(post__author=profile_user, reaction=Reaction.NICE).count()
+	post_nah_count     = Reaction.objects.filter(post__author=profile_user, reaction=Reaction.NAH).count()
+	comment_nice_count = Reaction.objects.filter(comment__author=profile_user, reaction=Reaction.NICE).count()
+	comment_nah_count  = Reaction.objects.filter(comment__author=profile_user, reaction=Reaction.NAH).count()
+
+	total_nice = post_nice_count + comment_nice_count
+	total_nah  = post_nah_count  + comment_nah_count
+
 	context = {
 		'profile_user': profile_user,
 		'is_own_profile': is_own_profile,
 		'user_posts': user_posts,
 		'total_posts': user_posts.count(),
 		'total_comments': profile_user.comments.count(),
+		'total_nice': total_nice,
+		'total_nah': total_nah,
+		'post_nice_count': post_nice_count,
+		'post_nah_count': post_nah_count,
+		'comment_nice_count': comment_nice_count,
+		'comment_nah_count': comment_nah_count,
 	}
 	tab = request.GET.get('tab', 'profile')
 	context['tab'] = tab
+
 	return render(request, 'accounts/profile.html', context)

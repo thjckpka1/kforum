@@ -11,4 +11,8 @@ urlpatterns = [
     # Filter theo category và tag
     path('category/<slug:slug>/', views.post_by_category, name='post_by_category'),
     path('tag/<slug:slug>/', views.post_by_tag, name='post_by_tag'),
+
+    # Reaction (AJAX)
+    path('post/<int:pk>/react/', views.react_post, name='react_post'),
+    path('comment/<int:pk>/react/', views.react_comment, name='react_comment'),
 ]

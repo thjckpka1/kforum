@@ -36,6 +36,14 @@
           <div class="lbl">Bình luận</div>
         </div>
         <div class="kf-profile-stat">
+          <div class="val">{{ total_nice }}</div>
+          <div class="lbl">👌 Nice nhận</div>
+        </div>
+        <div class="kf-profile-stat">
+          <div class="val">{{ total_nah }}</div>
+          <div class="lbl">🙄 Nah nhận</div>
+        </div>
+        <div class="kf-profile-stat">
           <div class="val">{{ profile_user.date_joined|date:"Y" }}</div>
           <div class="lbl">Năm tham gia</div>
         </div>
@@ -81,6 +89,31 @@
   </div>
   {% endif %}
 
+  <!-- Thống kê reaction chi tiết (chỉ hiện trên profile của chính mình) -->
+  {% if is_own_profile %}
+  <div class="kf-edit-form">
+    <div class="kf-section-title">📊 Thống kê reaction</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:140px;background:rgba(200,146,42,0.08);border:1.5px solid rgba(200,146,42,0.2);border-radius:12px;padding:16px 20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:4px;">👌</div>
+        <div style="font-size:26px;font-weight:800;color:#C8922A;">{{ total_nice }}</div>
+        <div style="font-size:12px;color:#8aabcc;font-weight:600;margin-top:2px;">Nice nhận được</div>
+        <div style="font-size:11px;color:#8aabcc;margin-top:6px;">
+          bài: {{ post_nice_count }} · comment: {{ comment_nice_count }}
+        </div>
+      </div>
+      <div style="flex:1;min-width:140px;background:rgba(61,122,181,0.08);border:1.5px solid rgba(61,122,181,0.2);border-radius:12px;padding:16px 20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:4px;">🙄</div>
+        <div style="font-size:26px;font-weight:800;color:#3d7ab5;">{{ total_nah }}</div>
+        <div style="font-size:12px;color:#8aabcc;font-weight:600;margin-top:2px;">Nah nhận được</div>
+        <div style="font-size:11px;color:#8aabcc;margin-top:6px;">
+          bài: {{ post_nah_count }} · comment: {{ comment_nah_count }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Danh sách bài viết -->
   <div class="kf-edit-form">
     <div class="kf-section-title">📝 Bài viết của {{ profile_user.username }}</div>
@@ -91,6 +124,7 @@
           {{ post.created_at|date:"d/m/Y" }}
           {% if post.category %} · {{ post.category.name }}{% endif %}
           · 💬 {{ post.comments.count }}
+          · 👌 {{ post.reactions.all.count }}
         </p>
       </a>
     {% empty %}

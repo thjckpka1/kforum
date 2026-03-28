@@ -43,7 +43,6 @@ class Post(models.Model):
 	)
 	tags = models.ManyToManyField(Tag, blank=True)
 	title = models.CharField(max_length=200)
-	# content = models.TextField()
 	content = RichTextField()
 	image = models.ImageField(upload_to='posts/', blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
@@ -56,15 +55,20 @@ class Post(models.Model):
 		ordering = ['-created_at']
 
 	def save(self, *args, **kwargs):
-		# Lọc HTML, chỉ cho phép một số thẻ an toàn
 		allowed_tags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'strike', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'ul', 'ol', 'li']
 		allowed_attrs = {
 			'a': ['href', 'title', 'target', 'rel'],
 			'img': ['src', 'alt', 'width', 'height', 'style'],
-			'*':   ['class'],  # nếu muốn giữ style, cần kiểm soát kỹ
+			'*':   ['class'],
 		}
 		self.content = bleach.clean(self.content, tags=allowed_tags, attributes=allowed_attrs, strip=True)
 		super().save(*args, **kwargs)
+
+	def nice_count(self):
+		return self.reactions.filter(reaction=Reaction.NICE).count()
+
+	def nah_count(self):
+		return self.reactions.filter(reaction=Reaction.NAH).count()
 
 
 class Comment(models.Model):
@@ -86,3 +90,54 @@ class Comment(models.Model):
 
 	class Meta:
 		ordering = ['created_at']
+
+
+class Reaction(models.Model):
+	NICE = 'nice'
+	NAH = 'nah'
+	REACTION_CHOICES = [
+		(NICE, 'nice'),
+		(NAH, 'nah'),
+	]
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='reactions'
+	)
+	reaction = models.CharField(max_length=4, choices=REACTION_CHOICES)
+
+	# Một trong hai phải có giá trị (post hoặc comment), không bao giờ cả hai
+	post = models.ForeignKey(
+		Post,
+		on_delete=models.CASCADE,
+		related_name='reactions',
+		null=True, blank=True
+	)
+	comment = models.ForeignKey(
+		Comment,
+		on_delete=models.CASCADE,
+		related_name='reactions',
+		null=True, blank=True
+	)
+
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		# Mỗi user chỉ react 1 lần trên mỗi post/comment
+		constraints = [
+			models.UniqueConstraint(
+				fields=['user', 'post'],
+				condition=models.Q(post__isnull=False),
+				name='unique_reaction_per_user_post'
+			),
+			models.UniqueConstraint(
+				fields=['user', 'comment'],
+				condition=models.Q(comment__isnull=False),
+				name='unique_reaction_per_user_comment'
+			),
+		]
+
+	def __str__(self):
+		target = f'post:{self.post_id}' if self.post_id else f'comment:{self.comment_id}'
+		return f'{self.user} — {self.reaction} — {target}'

@@ -47,13 +47,13 @@
             <a href="{% url 'profile' %}?tab=settings">⚙️ Cài đặt tài khoản</a>
             <a href="{% url 'post_create' %}">✏️ Đăng bài mới</a>
             <div class="kf-dd-divider"></div>
-            <a href="{% url 'logout' %}" class="kf-dd-logout">🚪 Đăng xuất</a>
+            <a href="{% url 'logout' %}?next={{ request.path }}" class="kf-dd-logout">🚪 Đăng xuất</a>
           </div>
         </div>
       </div>
     {% else %}
       <a href="{% url 'register' %}" class="kf-btn-post">Đăng ký</a>
-      <a href="{% url 'login' %}" class="kf-nav-login">Đăng nhập</a>
+      <a href="{% url 'login' %}?next={{ request.path }}" class="kf-nav-login">Đăng nhập</a>
     {% endif %}
   </div>
 </nav>
